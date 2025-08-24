@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--credits to the random stackoverflow thread i stole the parallax code from-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MalO - the Discord bot</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: black;
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 60vh;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+    .stars {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 200%;
+        height: 200%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    .stars .drift {
+        width: 200%;
+        height: 200%;
+        background-repeat: repeat;
+        will-change: transform;
+    }
+
+    .stars1 .drift {
+        background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+        opacity: 0.9;
+        animation: drift 240s linear infinite;
+    }
+
+    .stars2 .drift {
+        background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+        opacity: 0.6;
+        animation: drift 120s linear infinite;
+    }
+
+
+    @keyframes drift {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-1000px); }
+    }
+
+        .main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3em;
+            max-width: 120em;
+            width: 100%;
+            margin-bottom: -5em;
+            padding: 5em;
+        }
+        .text-content {
+            flex: 1;
+            max-width: 500em;
+            color: rgb(218, 218, 218);
+            font-size: 2em;
+        }
+        .text-content h1 {
+            margin-top: 0;
+            font-size: 3em;
+        }
+        .image-content {
+            flex-shrink: 0;
+        }
+        .image-content img {
+            min-width: 30em;
+            height: auto;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .image-content img:hover {
+            transform: scale(1.05);
+        }
+        .credits {
+            text-align: center;
+            max-width: 50em;
+            width: 100%;
+        }
+        .credits h2 {
+            margin-bottom: 1em;
+        }
+        .credits a {
+            color: #ff8040;
+            text-decoration: none;
+        }
+        .credits a:hover {
+            text-decoration: underline;
+        }
+        i {
+            font-weight: 100;
+        }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            margin: 15% auto;
+            padding: 3em;
+            border: 0.2em solid rgba(200, 200, 200, 0.8);
+            width: 25em;
+            max-width: 90%;
+            text-align: center;
+            border-radius: 16px;
+            font-family: monospace;
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.2);
+            transform: scale(0.3) scaleY(0.1);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1) scaleY(1);
+        }
+
+        .modal.closing .modal-content {
+            transform: scale(0.8) scaleY(0.05);
+            transition: transform 0.25s ease-in;
+        }
+
+        .modal h3 {
+            padding-bottom: 1em;
+            color: white;
+            font-size: 1.5em;
+        }
+
+        .install-buttons {
+            display: flex;
+            gap: 1em;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding-top: 3em;
+        }
+
+        .install-btn {
+            padding: 1em 2em;
+            backdrop-filter: blur(15px);
+            color: white;
+            text-decoration: none;
+            border: 1px solid white;
+            border-radius: 4px;
+            font-family: monospace;
+            transition: all 0.3s ease;
+            display: inline-block;
+            background-color: black;
+            transform: translateY(0);
+        }
+
+        .install-btn:hover {
+            background-color: #555;
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            margin-top: -0.5em;
+            transition: all 0.2s ease;
+        }
+
+        .close:hover {
+            color: red;
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 48em) {
+            .main {
+                flex-direction: column;
+                text-align: center;
+                gap: 0px;
+            }
+           
+            .image-content img {
+                max-width: 60em;
+            }
+        }
+
+        /* Keyframe for extra squash effect */
+        @keyframes squashBounce {
+            0% {
+                transform: scale(0.3) scaleY(0.1);
+            }
+            50% {
+                transform: scale(1.1) scaleY(0.9);
+            }
+            70% {
+                transform: scale(0.95) scaleY(1.05);
+            }
+            100% {
+                transform: scale(1) scaleY(1);
+            }
+        }
+
+        .modal.bounce .modal-content {
+            animation: squashBounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="stars stars1"><div class="drift"></div></div>
+    <div class="stars stars2"><div class="drift"></div></div>
+
+    <div class="main">
+        <div class="text-content">
+            <h1><i>Let me be your new friend~</i></h1>
+            <p>MalO is a multipurpose open-source Discord bot written in discord.py. The list of commands can be viewed upon installing the bot as an App or adding MalO to a Guild.</p>
+        </div>
+        <div class="image-content">
+            <img src="malo.png" alt="MalO~" onclick="openModal()">
+        </div>
+    </div>
+   
+    <div class="credits">
+        <h2>Credits:</h2>
+        <p><a href="https://e926.net/posts/1925950">keadanger</a> for the emojis!</p>
+        <p><a href="https://e621.net/posts/5644431?q=malo+animated+ambient_among_us">pervertguy31 for the icon~</a></p>
+    </div>
+
+    
+    <div id="installModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Choose Installation Type</h3>
+            <i>How would you like to install MalO?</i>
+            <div class="install-buttons">
+                <a href="https://discord.com/oauth2/authorize?client_id=1080852729561358356&permissions=1126314438683712&integration_type=0&scope=bot" class="install-btn" target="_blank">Guild Install</a>
+                <a href="https://discord.com/oauth2/authorize?client_id=1080852729561358356&integration_type=1&scope=applications.commands" class="install-btn" target="_blank">User Install</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            const modal = document.getElementById('installModal');
+            modal.style.display = 'block';
+            modal.offsetHeight; // Force reflow
+            modal.classList.add('show');
+            modal.classList.add('bounce');
+            setTimeout(() => modal.classList.remove('bounce'), 500);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('installModal');
+            modal.classList.add('closing');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.classList.remove('closing');
+            }, 250);
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('installModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+    const stars1 = document.querySelector(".stars1");
+    const stars2 = document.querySelector(".stars2");
+
+    document.addEventListener("mousemove", (e) => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 20; 
+        const y = (e.clientY / window.innerHeight - 0.5) * 20;
+
+        stars1.style.transform = `translate(${x}px, ${y}px)`;
+        stars2.style.transform = `translate(${x*2}px, ${y*2}px)`;
+    });
+    </script>
+</body>
+</html>
